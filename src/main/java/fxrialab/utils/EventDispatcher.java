@@ -1,4 +1,4 @@
-package fxrialab.utils.watcherFtp.operations;
+package fxrialab.utils;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

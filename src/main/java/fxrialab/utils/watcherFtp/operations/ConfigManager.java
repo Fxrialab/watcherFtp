@@ -3,10 +3,7 @@ package fxrialab.utils.watcherFtp.operations;
 import fxrialab.utils.watcherFtp.domains.Config;
 
 import java.io.*;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -17,7 +14,7 @@ public class ConfigManager
     {
         ArrayList<Config> configs = new ArrayList<Config>(2);
 
-        Path configPath = FileSystems.getDefault().getPath("configs");
+        Path configPath = Paths.get("configs");
         if(Files.isDirectory(configPath))
         {
 

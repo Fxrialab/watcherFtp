@@ -1,6 +1,6 @@
 package fxrialab.utils.watcherFtp.menu;
 
-import fxrialab.utils.watcherFtp.operations.EventDispatcher;
+import fxrialab.utils.EventDispatcher;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,7 +10,7 @@ public class TrayMenu extends EventDispatcher
 {
     private SystemTray tray;
     private TrayMenu trayMenu;
-
+    private PopupMenu popup;
     public TrayMenu()
     {
         super();
@@ -19,14 +19,13 @@ public class TrayMenu extends EventDispatcher
         if(tray != null)
         {
             //popup menu
-            PopupMenu menu = new PopupMenu();
+            popup = new PopupMenu();
             MenuItem exitItem = new MenuItem("Exit");
             exitItem.addActionListener(new ExitActionHandler());
+            popup.add(exitItem);
 
-            menu.add(exitItem);
-
-             TrayIcon icon = new TrayIcon(Toolkit.getDefaultToolkit().getImage("src/main/resources/sftp.png"),"Watcher FTP Menu",menu);
-            icon.setPopupMenu(menu);
+             TrayIcon icon = new TrayIcon(Toolkit.getDefaultToolkit().getImage("icon.png"),"Watcher FTP Menu",popup);
+            icon.setPopupMenu(popup);
             try{
                 tray.add(icon);
             } catch (AWTException e) {
@@ -35,18 +34,23 @@ public class TrayMenu extends EventDispatcher
         }
     }
 
+    public void addLabel(String label)
+    {
+        popup.insert(label,0);
+    }
+
     /**
      * listeners
      */
 
     private class ExitActionHandler implements ActionListener
     {
-
         @Override
         public void actionPerformed(ActionEvent e) {
-            trayMenu.removeEventListener("exit", this);
+            MenuItem source = (MenuItem)e.getSource();
+            source.removeActionListener(this);
 
-            dispatchEvent(new ActionEvent(this, hashCode(), "exit"));
+            trayMenu.dispatchEvent(new ActionEvent(trayMenu, hashCode(), "exit"));
         }
     }
 }

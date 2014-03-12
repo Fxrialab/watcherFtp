@@ -1,8 +1,8 @@
 package fxrialab.utils.watcherFtp.operations;
 
+import fxrialab.utils.EventDispatcher;
 import fxrialab.utils.watcherFtp.domains.FolderChangeEvent;
 
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -29,6 +29,8 @@ public class DirWatcher extends EventDispatcher
         }
 
         keys = new HashMap<WatchKey, Path>(20);
+        watchDirRecursive(folder);
+        processEvents();
     }
 
     public void dispose()
@@ -110,7 +112,7 @@ public class DirWatcher extends EventDispatcher
                     }
                 }
 
-                dispatchEvent(new FolderChangeEvent(this,kind.name(),targetFolder.relativize(child)));
+                dispatchEvent(new FolderChangeEvent(targetFolder,kind.name(),targetFolder.relativize(child)));
             }
 
             boolean  valid = key.reset();
