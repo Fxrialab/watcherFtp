@@ -36,7 +36,9 @@ public class TrayMenu extends EventDispatcher
 
     public void addLabel(String label)
     {
-        popup.insert(label,0);
+        MenuItem item = new MenuItem(label);
+        item.setEnabled(false);
+        popup.insert(item,0);
     }
 
     /**

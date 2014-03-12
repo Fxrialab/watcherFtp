@@ -13,7 +13,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 public class DirWatcher extends EventDispatcher
 {
-    protected static WatchService watcher;
+    protected WatchService watcher;
     private Path targetFolder;
     private WatchKey wkey;
     private Map<WatchKey,Path> keys;
@@ -23,14 +23,10 @@ public class DirWatcher extends EventDispatcher
     {
         super();
         this.targetFolder = folder;
-        if(watcher == null)
-        {
-            watcher = FileSystems.getDefault().newWatchService();
-        }
+        watcher = FileSystems.getDefault().newWatchService();
 
         keys = new HashMap<WatchKey, Path>(20);
-        watchDirRecursive(folder);
-        processEvents();
+
     }
 
     public void dispose()
@@ -83,7 +79,6 @@ public class DirWatcher extends EventDispatcher
             Path dir = keys.get(key);
             if(dir == null)
             {
-                System.err.println("watch key is not recognized");
                 continue;
             }
 
@@ -124,6 +119,18 @@ public class DirWatcher extends EventDispatcher
                     dispose();
                 }
             }
+        }
+    }
+
+    public void start()
+    {
+        try
+        {
+            watchDirRecursive(targetFolder);
+            processEvents();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 }

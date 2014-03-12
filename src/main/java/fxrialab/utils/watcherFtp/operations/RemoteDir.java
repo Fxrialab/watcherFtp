@@ -2,6 +2,7 @@ package fxrialab.utils.watcherFtp.operations;
 
 import fxrialab.utils.EventDispatcher;
 import fxrialab.utils.watcherFtp.domains.FolderChangeEvent;
+import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 
 import java.awt.event.ActionEvent;
@@ -22,7 +23,7 @@ public class RemoteDir extends EventDispatcher
     private int sshPort;
     private String sshUser;
     private String sshPwd;
-    private SFTPClient client;
+    private SSHClient client;
 
     public RemoteDir(String sshHost,int sshPort,String sshUser,String sshPwd, String remotePath) throws IOException
     {
@@ -48,7 +49,10 @@ public class RemoteDir extends EventDispatcher
             System.out.println("change :" + changePath);
             try
             {
-                client.put(sourceFolder + "/" + changePath,remotePath + "/" + changePath);
+                if(!client.isConnected())
+                    client = FtpHostManager.connectSftp(this.sshHost,this.sshPort,this.sshUser,this.sshPwd);
+                SFTPClient ftp = client.newSFTPClient();
+                ftp.put(sourceFolder + "/" + changePath,remotePath + "/" + changePath);
             } catch (IOException e)
             {
                 e.printStackTrace();

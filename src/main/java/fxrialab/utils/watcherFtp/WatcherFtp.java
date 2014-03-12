@@ -5,12 +5,15 @@ import fxrialab.utils.watcherFtp.menu.TrayMenu;
 import fxrialab.utils.watcherFtp.operations.ConfigManager;
 import fxrialab.utils.watcherFtp.operations.DirWatcher;
 import fxrialab.utils.watcherFtp.operations.RemoteDir;
+import fxrialab.utils.watcherFtp.operations.WatchThread;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Hello world!
@@ -39,21 +42,11 @@ public class WatcherFtp implements Runnable {
         });
         ConfigManager configManager = new ConfigManager();
         Config[] configs = configManager.listAllConfigs();
+        Executor exe = Executors.newCachedThreadPool();
         for(Config cfg:configs)
         {
-            try
-            {
-                DirWatcher local = new DirWatcher(Paths.get(cfg.getLocalFolder()));
-                RemoteDir remote = new RemoteDir(cfg.getHost(),cfg.getPort(),
-                                                 cfg.getUser(),cfg.getPassword(),
-                                                 cfg.getRemoteFolder());
-                remote.listen(local);
-
-                menu.addLabel(cfg.getLocalFolder() + "->" + cfg.getRemoteFolder());
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            menu.addLabel(cfg.getLocalFolder() + " ==> " + cfg.getRemoteFolder());
+            exe.execute(new WatchThread(cfg));
         }
 //        ScheduledExecutorService exe = Executors.newSingleThreadScheduledExecutor();
 //        exe.scheduleAtFixedRate(new Runnable()
