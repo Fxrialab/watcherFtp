@@ -3,10 +3,10 @@ package fxrialab.utils.watcherFtp.operations;
 import fxrialab.utils.watcherFtp.domains.Config;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 public class ConfigManager
 {
@@ -27,7 +27,7 @@ public class ConfigManager
                     BufferedReader reader = null;
                     try
                     {
-                        reader = Files.newBufferedReader(p);
+                        reader = Files.newBufferedReader(p, Charset.defaultCharset());
                         Properties props = new Properties();
                         props.load(reader);
                         Config cfg = new Config();

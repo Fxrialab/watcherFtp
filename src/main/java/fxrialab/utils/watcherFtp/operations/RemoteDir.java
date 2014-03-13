@@ -5,6 +5,7 @@ import fxrialab.utils.watcherFtp.domains.FolderChangeEvent;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class RemoteDir extends EventDispatcher
                     client = FtpHostManager.connectSftp(this.sshHost,this.sshPort,this.sshUser,this.sshPwd);
                 SFTPClient ftp = client.newSFTPClient();
                 ftp.put(sourceFolder + "/" + changePath,remotePath + "/" + changePath);
+                SystemTray.getSystemTray().getTrayIcons()[0].displayMessage("Uploading " ,changePath, TrayIcon.MessageType.INFO);
             } catch (IOException e)
             {
                 e.printStackTrace();

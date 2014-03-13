@@ -6,10 +6,15 @@ virtualbox webserver.
 
 
 create or edit the properties file in configs folder
+
     *local : should be the absolute path to your local folder
+
     *remote: should be remote dir
+
 run watcher.exe. it will sit in system tray and monitor file changes and sync to remote folder
 right click on the icon and select exit to quit the app.
+
+Require JDK 7
 
 The MIT License (MIT)
 
