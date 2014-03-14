@@ -1,0 +1,1 @@
+java -jar watcherftp-0.1.jar
