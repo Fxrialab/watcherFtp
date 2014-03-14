@@ -11,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -104,7 +105,7 @@ public class DirWatcher extends EventDispatcher
             WatchKey key;
             try
             {
-                key = watcher.take();
+                key = watcher.poll(60, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e)
             {
                 return;

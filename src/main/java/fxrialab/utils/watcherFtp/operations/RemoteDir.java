@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,12 +56,11 @@ public class RemoteDir extends EventDispatcher
             String changePath   = ev.getChange().toString();
             changePath = changePath.replaceAll("\\\\","/");
             sourceFolder = sourceFolder.replaceAll("\\\\","/");
-
             try
             {
                 if (!client.isConnected())
                     client = FtpHostManager.connectSftp(this.sshHost, this.sshPort, this.sshUser, this.sshPwd);
-                Path source = Paths.get(remotePath + "/" +changePath);
+                File source = Paths.get(sourceFolder + "/" +changePath).toFile();
 
                 if(ev.getActionCommand()== ENTRY_DELETE.name() )
                 {
@@ -71,16 +71,21 @@ public class RemoteDir extends EventDispatcher
                     log.info(cmd);
                     session.close();
                 }
-                else
+                else if(ev.getActionCommand()==ENTRY_CREATE.name() && source.isDirectory())
                 {
-                    if(source.toFile().exists() || ev.getActionCommand()==ENTRY_CREATE.name())
-                    {
-                        SFTPClient ftp = client.newSFTPClient();
-                        ftp.put(sourceFolder + "/" + changePath, remotePath + "/" + changePath);
-                        SystemTray.getSystemTray().getTrayIcons()[0].displayMessage("Uploading ", changePath, TrayIcon.MessageType.INFO);
-                        log.info("updated " + remotePath + "/" + changePath);
-                        ftp.close();
-                    }
+                    SFTPClient ftp = client.newSFTPClient();
+                    ftp.put(sourceFolder + "/" + changePath, remotePath + "/" + changePath);
+                    SystemTray.getSystemTray().getTrayIcons()[0].displayMessage("Uploading ", changePath, TrayIcon.MessageType.INFO);
+                    log.info("created folder " + remotePath + "/" + changePath);
+                    ftp.close();
+                }
+                else if(source.exists() && source.isFile()  && ev.getActionCommand()==ENTRY_MODIFY.name())
+                {
+                    SFTPClient ftp = client.newSFTPClient();
+                    ftp.put(sourceFolder + "/" + changePath, remotePath + "/" + changePath);
+                    SystemTray.getSystemTray().getTrayIcons()[0].displayMessage("Uploading ", changePath, TrayIcon.MessageType.INFO);
+                    log.info("updated " + remotePath + "/" + changePath);
+                    ftp.close();
                 }
             } catch (IOException e)
             {
