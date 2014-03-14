@@ -1,6 +1,7 @@
 package fxrialab.utils.watcherFtp.operations;
 
 import fxrialab.utils.watcherFtp.domains.Config;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -23,7 +24,7 @@ public class WatchThread implements Runnable
             RemoteDir remote = new RemoteDir(cfg.getHost(),cfg.getPort(),
                     cfg.getUser(),cfg.getPassword(),
                     cfg.getRemoteFolder());
-            System.out.println("start watching folder " + cfg.getLocalFolder());
+            LoggerFactory.getLogger("WatchThread").info("start watching folder " + cfg.getLocalFolder());
             remote.listen(local);
             local.start();
         } catch (IOException e)

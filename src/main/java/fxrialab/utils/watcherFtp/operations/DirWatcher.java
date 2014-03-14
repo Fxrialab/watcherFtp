@@ -2,11 +2,14 @@ package fxrialab.utils.watcherFtp.operations;
 
 import fxrialab.utils.EventDispatcher;
 import fxrialab.utils.watcherFtp.domains.FolderChangeEvent;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -15,7 +18,6 @@ public class DirWatcher extends EventDispatcher
 {
     protected WatchService watcher;
     private Path targetFolder;
-    private WatchKey wkey;
     private Map<WatchKey,Path> keys;
     private boolean beingDisposed = false;
 
@@ -50,6 +52,25 @@ public class DirWatcher extends EventDispatcher
         }
     }
 
+    public void unregister(Path p) throws IOException
+    {
+        if(!keys.containsKey(p.toString()))
+        {
+            WatchKey k = null;
+            Iterator<WatchKey> iterator = keys.keySet().iterator();
+            while(iterator.hasNext())
+            {
+                k = iterator.next();
+                if(keys.get(k) == p)
+                {
+                    break;
+                }
+            }
+            if(k != null)
+                keys.remove(k);
+        }
+    }
+
     public void watchDirRecursive(Path p) throws IOException
     {
         Files.walkFileTree(p, new SimpleFileVisitor<Path>(){
@@ -58,6 +79,19 @@ public class DirWatcher extends EventDispatcher
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
             {
                 register(dir);
+                return super.preVisitDirectory(dir, attrs);
+            }
+        });
+    }
+
+    public void unwatchDirRecursive(Path p) throws IOException
+    {
+        Files.walkFileTree(p, new SimpleFileVisitor<Path>(){
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+            {
+                unregister(dir);
                 return super.preVisitDirectory(dir, attrs);
             }
         });
@@ -106,6 +140,19 @@ public class DirWatcher extends EventDispatcher
                         }
                     }
                 }
+                else if(kind == ENTRY_DELETE)
+                {
+                    if(Files.isDirectory(child))
+                    {
+                        try
+                        {
+                            unwatchDirRecursive(child);
+                        } catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
 
                 dispatchEvent(new FolderChangeEvent(targetFolder,kind.name(),targetFolder.relativize(child)));
             }
@@ -130,7 +177,7 @@ public class DirWatcher extends EventDispatcher
             processEvents();
         } catch (IOException e)
         {
-            e.printStackTrace();
+            LoggerFactory.getLogger(DirWatcher.class).error("Start watcher error:",e);
         }
     }
 }

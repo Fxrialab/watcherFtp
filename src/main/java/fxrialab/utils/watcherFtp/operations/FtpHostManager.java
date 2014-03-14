@@ -3,6 +3,7 @@ package fxrialab.utils.watcherFtp.operations;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class FtpHostManager
         String key = user + "@"+host + ":" + port;
         SSHClient ssh = new SSHClient();
         ssh.addHostKeyVerifier(new PromiscuousVerifier());
-        System.out.println("connecting to "+host);
+        LoggerFactory.getLogger("HostManager").info("connecting to " + host);
         ssh.connect(host, port);
         ssh.authPassword(user, password);
         ssh.startSession();

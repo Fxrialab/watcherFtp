@@ -48,24 +48,5 @@ public class WatcherFtp implements Runnable {
             menu.addLabel(cfg.getLocalFolder() + " ==> " + cfg.getRemoteFolder());
             exe.execute(new WatchThread(cfg));
         }
-//        ScheduledExecutorService exe = Executors.newSingleThreadScheduledExecutor();
-//        exe.scheduleAtFixedRate(new Runnable()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                while (!stopPolling)
-//                {
-//                    FtpHostManager.keepServersAlive();
-//                    try
-//                    {
-//                        Thread.sleep(2000);
-//                    } catch (InterruptedException e)
-//                    {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        },0,200, TimeUnit.MILLISECONDS);
     }
 }
