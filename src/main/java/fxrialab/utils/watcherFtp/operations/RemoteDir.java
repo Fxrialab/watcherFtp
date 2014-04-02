@@ -33,7 +33,7 @@ public class RemoteDir extends EventDispatcher
     private String sshPwd;
     private SSHClient client;
 
-    public RemoteDir(String sshHost,int sshPort,String sshUser,String sshPwd, String remotePath) throws IOException
+    public RemoteDir(String sshHost,int sshPort,String sshUser,String sshPwd, String remotePath)
     {
         super();
         this.remotePath = remotePath;
@@ -41,8 +41,6 @@ public class RemoteDir extends EventDispatcher
         this.sshPort    = sshPort;
         this.sshPwd     = sshPwd;
         this.sshUser    = sshUser;
-
-        client = FtpHostManager.connectSftp(this.sshHost,this.sshPort,this.sshUser,this.sshPwd);
         this.changes   = new ConcurrentLinkedQueue<FolderChangeEvent>();
 
     }
@@ -58,7 +56,7 @@ public class RemoteDir extends EventDispatcher
             sourceFolder = sourceFolder.replaceAll("\\\\","/");
             try
             {
-                if (!client.isConnected())
+                if (client== null || !client.isConnected())
                     client = FtpHostManager.connectSftp(this.sshHost, this.sshPort, this.sshUser, this.sshPwd);
                 File source = Paths.get(sourceFolder + "/" +changePath).toFile();
 
@@ -71,7 +69,7 @@ public class RemoteDir extends EventDispatcher
                     log.info(cmd);
                     session.close();
                 }
-                else if(ev.getActionCommand()==ENTRY_CREATE.name() && source.isDirectory())
+                else if(ev.getActionCommand()==ENTRY_CREATE.name())
                 {
                     SFTPClient ftp = client.newSFTPClient();
                     ftp.put(sourceFolder + "/" + changePath, remotePath + "/" + changePath);
@@ -90,6 +88,17 @@ public class RemoteDir extends EventDispatcher
             } catch (IOException e)
             {
                 log.error("NIO error:" ,e);
+                try
+                {
+                    client.close();
+                } catch (IOException e1)
+                {
+                    log.error("disconnect error:", e1);
+                }
+                finally
+                {
+                    client = null;
+                }
             }
             try
             {
